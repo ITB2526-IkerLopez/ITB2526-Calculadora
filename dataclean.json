@@ -1,0 +1,105 @@
+{
+  "projecte": "ITB Leaks - Anàlisi de Dades",
+  "curs": "2024-2025",
+  "dades": {
+    "subministraments": {
+      "aigua": [
+        { "arxiu": "Aigua-image001.png", "data": "25-02-2024", "consum_litres": 193 },
+        { "arxiu": "Aigua-image002.png", "data": "28-02-2024", "consum_litres": 154 },
+        { "arxiu": "Aigua-image003.png", "data": "29-02-2024", "consum_litres": 175 }
+      ],
+      "energia": {
+        "arxiu": "Plant Report_ITB_01-2025.xlsx - Sheet1.csv",
+        "descripcio": "Datos diarios de generación y consumo eléctrico",
+        "registres_diaris": [
+          { "data": "2025-01-01", "generada_kwh": 42.56, "consumida_kwh": 157.47, "exportada_kwh": 2.62 },
+          { "data": "2025-01-02", "generada_kwh": 48.86, "consumida_kwh": 159.55, "exportada_kwh": 3.43 },
+          { "data": "2025-01-03", "generada_kwh": 36.48, "consumida_kwh": 189.50, "exportada_kwh": 0.22 },
+          { "data": "2025-01-04", "generada_kwh": 44.18, "consumida_kwh": 201.76, "exportada_kwh": 0.43 },
+          { "data": "2025-01-05", "generada_kwh": 41.99, "consumida_kwh": 199.49, "exportada_kwh": 0.14 },
+          { "data": "2025-01-06", "generada_kwh": 40.55, "consumida_kwh": 191.55, "exportada_kwh": 2.63 },
+          { "data": "2025-01-07", "generada_kwh": 53.26, "consumida_kwh": 200.19, "exportada_kwh": 1.90 },
+          { "data": "2025-01-08", "generada_kwh": 47.81, "consumida_kwh": 467.60, "exportada_kwh": 0.00 },
+          { "data": "2025-01-09", "generada_kwh": 52.03, "consumida_kwh": 461.78, "exportada_kwh": 0.00 },
+          { "data": "2025-01-10", "generada_kwh": 49.33, "consumida_kwh": 425.97, "exportada_kwh": 0.00 },
+          { "data": "2025-01-11", "generada_kwh": 40.03, "consumida_kwh": 201.40, "exportada_kwh": 1.49 },
+          { "data": "2025-01-12", "generada_kwh": 57.00, "consumida_kwh": 214.71, "exportada_kwh": 1.87 },
+          { "data": "2025-01-13", "generada_kwh": 55.89, "consumida_kwh": 491.00, "exportada_kwh": 0.00 },
+          { "data": "2025-01-14", "generada_kwh": 57.49, "consumida_kwh": 484.29, "exportada_kwh": 0.00 },
+          { "data": "2025-01-15", "generada_kwh": 55.58, "consumida_kwh": 479.75, "exportada_kwh": 0.00 },
+          { "data": "2025-01-16", "generada_kwh": 40.94, "consumida_kwh": 490.80, "exportada_kwh": 0.00 },
+          { "data": "2025-01-17", "generada_kwh": 52.90, "consumida_kwh": 430.68, "exportada_kwh": 0.00 },
+          { "data": "2025-01-18", "generada_kwh": 56.17, "consumida_kwh": 198.59, "exportada_kwh": 3.17 },
+          { "data": "2025-01-19", "generada_kwh": 35.53, "consumida_kwh": 202.16, "exportada_kwh": 0.20 },
+          { "data": "2025-01-20", "generada_kwh": 32.00, "consumida_kwh": 488.39, "exportada_kwh": 0.00 },
+          { "data": "2025-01-21", "generada_kwh": 30.24, "consumida_kwh": 500.34, "exportada_kwh": 0.00 },
+          { "data": "2025-01-22", "generada_kwh": 5.87, "consumida_kwh": 165.55, "exportada_kwh": 0.00 }
+        ]
+      },
+      "telecomunicacions": [
+        { "arxiu": "F294-O2-Març_ITBLeaks.png", "proveidor": "O2", "mes_facturacio": "Març", "import_total_eur": 50.00, "concepte": "Cuota fibra 1gb y movil 200gb" },
+        { "arxiu": "F078-MAIG-DGFCJ2400192425_ITBLeaks.png", "proveidor": "DIGI", "mes_facturacio": "Maig", "import_total_eur": 30.00, "concepte": "Factura" },
+        { "arxiu": "F078-DIGI-MAIG-DGFCJ2400192425_ITBLeaks.png", "proveidor": "DIGI", "mes_facturacio": "Maig", "import_total_eur": null, "concepte": "Detall línies (inclòs a la factura principal)" }
+      ]
+    },
+    "compres_i_manteniment": {
+      "material_oficina": [
+        { "arxiu": "F036-Lyreco-MaterialOficinaRecanvisPissarraPaper.png", "proveidor": "Lyreco", "data_factura": "30-06-2024", "import_total_eur": 261.24, "articles": [
+            "Recambio marcador pizarra blanca verde", 
+            "Recambio marcador pizarra blanca azul", 
+            "500h papel Navigator universal A4 80g"
+          ] 
+        },
+        { "arxiu": "F035-MaterialOficina-0014_7010419754.png", "proveidor": "Lyreco", "data_factura": "31-05-2024", "import_total_eur": 277.13, "articles": [
+            "Recambios borrador Fabio", 
+            "Borrador no magnético Fabio plast gris", 
+            "500h papel Navigator universal A4 80g", 
+            "Marcador piz bca Pilot Begreen 2,3mm (verde, rojo, negro y azul)"
+          ] 
+        }
+      ],
+      "serveis_neteja": [
+        { "arxiu": "F055-Neteges.png", "proveidor": "Servei de Neteja", "data_factura": "20-06-2024", "import_total_eur": 750.26, "articles": [
+            "20 sacos industriales",
+            "30 bolsas basura pequeñas",
+            "10 fardos papel wc industrial",
+            "5 fardos papel secamanos mecha",
+            "3 garrafas jabon manos 5l"
+          ]
+        },
+        { "arxiu": "F056-Neteges.png", "proveidor": "Servei de Neteja", "data_factura": "27-05-2024", "import_total_eur": 454.72, "articles": [
+            "Limpieza jardin, patios i entrada (20/04/2024)",
+            "Transporte y deixalleria",
+            "Bolsa de horas especialistas licitación 30h"
+          ] 
+        }
+      ],
+      "altres_factures_np": [
+        { "arxiu": "F039-NP.png", "proveidor": "NP", "data_factura": "13-09-2024", "import_total_eur": 1010.98, "concepte": ["1 serveis extraordinaris", "1 compra materials", "1 compra de materials"] },
+        { "arxiu": "F041-NP.png", "proveidor": "NP", "data_factura": "05-07-2024", "import_total_eur": 348.48, "concepte": ["1 servei d'urgencia"] },
+        { "arxiu": "F046-NP.png", "proveidor": "NP", "data_factura": "23-05-2024", "import_total_eur": 2548.02, "concepte": ["1 serveis extraordinaris", "1 compra de materials"] },
+        { "arxiu": "F327-34.png", "proveidor": "Lyreco", "data_factura": "31-07-2024", "import_total_eur": 34.36, "concepte": ["recambio marcador de pizarra blanca negro"] },
+        { "arxiu": "F328-198.png", "proveidor": "Lyreco", "data_factura": "30-11-2024", "import_total_eur": 198.56, "concepte": ["500h papel navigator universal a4 80g", "500h papel navigator universal a4 80g"] }
+      ]
+    },
+    "indicadors_academics": {
+      "mobils_aula": {
+        "arxiu": "INDICADORS Mobils a l_aula 2024-2025.pdf",
+        "total_incidencies_curs": 203.5,
+        "mes_amb_mes_incidencies": "Novembre",
+        "percentatge_alumnat_afectat": 32.66
+      }
+    },
+    "documents_classificats": [
+      {
+        "arxiu": "Desclasificat.png",
+        "tipus_document": "Intern/Confidencial",
+        "import_total_eur": 28.40,
+        "articles": [
+          "recambio marcador pizarra blanca negro"
+        ],
+        "observacions": "Registre afegit manualment"
+      }
+    ]
+  }
+}

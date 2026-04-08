@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Consums i Estalvi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .calculator-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .status-banner {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .status-loading { background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; }
+        .status-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #81c784; }
+        .status-error { background: #ffebee; color: #c62828; border: 1px solid #e57373; }
+
+        .section-title {
+            color: #2980b9;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9fbfb;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .form-group label { flex: 1; font-weight: 600; }
+        .form-group input { flex: 0.4; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        button {
+            width: 100%; padding: 15px; background-color: #3498db; color: white;
+            border: none; border-radius: 5px; font-size: 18px; cursor: pointer;
+            margin-top: 20px; transition: background 0.3s;
+        }
+        button:hover { background-color: #2980b9; }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .result-card { background: #ecf0f1; padding: 15px; border-radius: 5px; border-left: 5px solid #3498db; }
+        .result-title { font-size: 14px; color: #7f8c8d; margin-bottom: 5px; }
+        .result-value { font-size: 20px; font-weight: bold; color: #2c3e50; }
+        .tips-section { background: #e8f8f5; padding: 20px; border-radius: 8px; border: 1px solid #1abc9c; margin-top: 40px; }
+        .tips-section h3 { color: #16a085; margin-top: 0; }
+        .tips-list { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="calculator-container">
+    <h2>📊 Calculadora Avançada de Consums (ITB Leaks)</h2>
+
+    <div id="status-message" class="status-banner status-loading">
+        ⏳ Carregant dades des de dataclean.json...
+    </div>
+
+    <div class="input-section">
+        <h3 class="section-title">Consums Variables Base (Mitjana Mensual Autocompletada)</h3>
+        <div class="form-group">
+            <label for="elec">⚡ Consum elèctric (kWh):</label>
+            <input type="number" id="elec" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+            <label for="aigua">💧 Consum d'aigua (Litres):</label>
+            <input type="number" id="aigua" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+            <label for="oficina">📎 Consumables d'oficina (€):</label>
+            <input type="number" id="oficina" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+            <label for="neteja">🧹 Productes de neteja (€):</label>
+            <input type="number" id="neteja" placeholder="0" min="0">
+        </div>
+
+        <h3 class="section-title">Categories de Despesa Fixa/Previsible (€)</h3>
+        <div class="form-group">
+            <label for="manteniment">🔧 Manteniment i Urgències (NP):</label>
+            <input type="number" id="manteniment" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+            <label for="escombraries">🗑️ Telecomunicacions (Ex: O2/Digi):</label>
+            <input type="number" id="escombraries" placeholder="0" min="0">
+        </div>
+
+        <h3 class="section-title">Configuració del Període</h3>
+        <div class="form-group">
+            <label for="mesos">Durada del curs escolar actiu (mesos):</label>
+            <input type="number" id="mesos" value="10" min="1" max="12">
+        </div>
+
+        <button onclick="calcularConsums()">Recalcular Previsions</button>
+    </div>
+
+    <div class="results-section" id="results" style="display: none;">
+        <h3 class="section-title">Resultats de l'Anàlisi (Amb Estacionalitat)</h3>
+        <div class="results-grid">
+            <div class="result-card">
+                <div class="result-title">1. Consum elèctric Any (12m)</div>
+                <div class="result-value" id="res-elec-any">0 kWh</div>
+            </div>
+            <div class="result-card">
+                <div class="result-title">2. Consum elèctric Curs (<span class="mesos-text">10</span>m)</div>
+                <div class="result-value" id="res-elec-periode">0 kWh</div>
+            </div>
+            <div class="result-card" style="border-left-color: #34ace0;">
+                <div class="result-title">3. Consum d'aigua Any (12m)</div>
+                <div class="result-value" id="res-aigua-any">0 L</div>
+            </div>
+            <div class="result-card" style="border-left-color: #34ace0;">
+                <div class="result-title">4. Consum d'aigua Curs (<span class="mesos-text">10</span>m)</div>
+                <div class="result-value" id="res-aigua-periode">0 L</div>
+            </div>
+            <div class="result-card" style="border-left-color: #f1c40f;">
+                <div class="result-title">5. Consumables d'oficina Any (12m)</div>
+                <div class="result-value" id="res-oficina-any">0 €</div>
+            </div>
+            <div class="result-card" style="border-left-color: #f1c40f;">
+                <div class="result-title">6. Consumables Curs (<span class="mesos-text">10</span>m)</div>
+                <div class="result-value" id="res-oficina-periode">0 €</div>
+            </div>
+            <div class="result-card" style="border-left-color: #2ecc71;">
+                <div class="result-title">7. Productes neteja Any (12m)</div>
+                <div class="result-value" id="res-neteja-any">0 €</div>
+            </div>
+            <div class="result-card" style="border-left-color: #2ecc71;">
+                <div class="result-title">8. Productes neteja Curs (<span class="mesos-text">10</span>m)</div>
+                <div class="result-value" id="res-neteja-periode">0 €</div>
+            </div>
+            <div class="result-card" style="border-left-color: #9b59b6;">
+                <div class="result-title">9. Manteniment i Altres Any (12m)</div>
+                <div class="result-value" id="res-altres-any">0 €</div>
+            </div>
+            <div class="result-card" style="border-left-color: #9b59b6;">
+                <div class="result-title">10. Manteniment i Altres Curs (<span class="mesos-text">10</span>m)</div>
+                <div class="result-value" id="res-altres-periode">0 €</div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h3>💡 Guia d'Acció: Com reduir aquests consums?</h3>
+            <ul class="tips-list">
+                <li><strong>⚡ Consum Elèctric:</strong> Aprofita la llum natural obrint persianes i apaga els llums en aules buides. Ajusta la climatització.</li>
+                <li><strong>💧 Consum d'Aigua:</strong> Instal·la airejadors a les aixetes i polsadors de doble descàrrega als lavabos.</li>
+                <li><strong>📎 Consumables d'Oficina:</strong> Fomenta la digitalització. Configura les impressores per defecte a doble cara.</li>
+                <li><strong>🧹 Productes de Neteja:</strong> Compra a granel per reduir envasos i utilitza dosificadors automàtics.</li>
+                <li><strong>🔧 Manteniment i Telecomunicacions:</strong> Revisa contractes d'internet per eliminar línies inactives i estableix un pla de manteniment preventiu.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Executar automàticament al carregar la pàgina
+    window.onload = function() {
+        carregarJSON();
+    };
+
+    function carregarJSON() {
+        // Demana el fitxer JSON que ha d'estar a la mateixa carpeta
+        fetch('dataclean.json')
+            .then(response => {
+                if (!response.ok) throw new Error('No s\'ha pogut trobar el fitxer.');
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('status-message').className = 'status-banner status-success';
+                document.getElementById('status-message').innerHTML = '✅ Dades carregades i classificades correctament des de dataclean.json!';
+                extreureDadesJSON(data);
+                calcularConsums(); // Calcula automàticament els resultats
+            })
+            .catch(error => {
+                document.getElementById('status-message').className = 'status-banner status-error';
+                document.getElementById('status-message').innerHTML = '❌ Error de CORS o arxiu no trobat. (Llegeix la nota important sobre servidors locals).';
+                console.error('Error carregant el JSON:', error);
+            });
+    }
+
+    function extreureDadesJSON(data) {
+        // 1. Energia: Media diaria * 30
+        const energia = data.dades.subministraments.energia.registres_diaris;
+        let totalKwh = 0;
+        energia.forEach(reg => totalKwh += reg.consumida_kwh);
+        const kwhMensual = (totalKwh / energia.length) * 30;
+
+        // 2. Aigua: Media diaria * 30
+        const aigua = data.dades.subministraments.aigua;
+        let totalLitres = 0;
+        aigua.forEach(reg => totalLitres += reg.consum_litres);
+        const aiguaMensual = (totalLitres / aigua.length) * 30;
+
+        // 3. Oficina: Material Oficina + Lyreco (dins de NP) + Documents classificats
+        let totalOficina = 0;
+        let facturesOficina = 0;
+
+        // Carpeta estàndard d'oficina
+        data.dades.compres_i_manteniment.material_oficina.forEach(reg => {
+            totalOficina += reg.import_total_eur;
+            facturesOficina++;
+        });
+
+        // Busquem Lyreco filtrat dins de NP i documents classificats
+        const altres = data.dades.compres_i_manteniment.altres_factures_np;
+        altres.forEach(reg => {
+            if (reg.proveidor === 'Lyreco') {
+                totalOficina += reg.import_total_eur;
+                facturesOficina++;
+            }
+        });
+        data.dades.documents_classificats.forEach(reg => {
+            if(reg.articles && reg.articles[0].toLowerCase().includes("pizarra")) {
+                totalOficina += reg.import_total_eur;
+                facturesOficina++;
+            }
+        });
+        const oficinaMensual = totalOficina / (facturesOficina || 1);
+
+        // 4. Neteja
+        const neteja = data.dades.compres_i_manteniment.serveis_neteja;
+        let totalNeteja = 0;
+        neteja.forEach(reg => totalNeteja += reg.import_total_eur);
+        const netejaMensual = totalNeteja / (neteja.length || 1);
+
+        // 5. Manteniment (Només proveïdor "NP")
+        let totalManteniment = 0;
+        let facturesManteniment = 0;
+        altres.forEach(reg => {
+            if (reg.proveidor === 'NP') {
+                totalManteniment += reg.import_total_eur;
+                facturesManteniment++;
+            }
+        });
+        const mantenimentMensual = totalManteniment / (facturesManteniment || 1);
+
+        // 6. Telecomunicacions (Extret de la nova data) per la secció fixa
+        const telecom = data.dades.subministraments.telecomunicacions;
+        let totalTelecom = 0;
+        let facturesTelecom = 0;
+        telecom.forEach(reg => {
+            if(reg.import_total_eur !== null) {
+                totalTelecom += reg.import_total_eur;
+                facturesTelecom++;
+            }
+        });
+        const telecomMensual = totalTelecom / (facturesTelecom || 1);
+
+        // Injectar valors al formulari
+        document.getElementById('elec').value = Math.round(kwhMensual);
+        document.getElementById('aigua').value = Math.round(aiguaMensual);
+        document.getElementById('oficina').value = oficinaMensual.toFixed(2);
+        document.getElementById('neteja').value = netejaMensual.toFixed(2);
+        document.getElementById('manteniment').value = mantenimentMensual.toFixed(2);
+        document.getElementById('escombraries').value = telecomMensual.toFixed(2);
+    }
+
+    // Estacionalitat
+    const cicles = {
+        elec:   [1.0, 1.0, 1.2, 1.3, 1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 0.5, 0.5],
+        aigua:  [1.1, 1.0, 1.0, 0.9, 0.9, 0.9, 1.0, 1.0, 1.1, 1.2, 0.6, 0.6],
+        oficina:[1.2, 1.1, 1.0, 0.8, 1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 0.1, 0.1],
+        neteja: [1.1, 1.0, 1.0, 0.9, 1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 0.3, 0.3],
+        manten: [1.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 0.9, 0.9],
+        escomb: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    };
+
+    function calcularTotal(base, cicle, mesosLimit) {
+        let total = 0;
+        for (let i = 0; i < mesosLimit; i++) {
+            total += base * cicle[i % 12];
+        }
+        return total;
+    }
+
+    function calcularConsums() {
+        const elecBase = parseFloat(document.getElementById('elec').value) || 0;
+        const aiguaBase = parseFloat(document.getElementById('aigua').value) || 0;
+        const oficinaBase = parseFloat(document.getElementById('oficina').value) || 0;
+        const netejaBase = parseFloat(document.getElementById('neteja').value) || 0;
+        const mantenimentBase = parseFloat(document.getElementById('manteniment').value) || 0;
+        const escombrariesBase = parseFloat(document.getElementById('escombraries').value) || 0;
+
+        const mesosPeriode = parseInt(document.getElementById('mesos').value) || 10;
+
+        document.querySelectorAll('.mesos-text').forEach(el => el.textContent = mesosPeriode);
+
+        // Any
+        document.getElementById('res-elec-any').textContent = calcularTotal(elecBase, cicles.elec, 12).toFixed(2) + " kWh";
+        document.getElementById('res-aigua-any').textContent = calcularTotal(aiguaBase, cicles.aigua, 12).toFixed(2) + " L";
+        document.getElementById('res-oficina-any').textContent = calcularTotal(oficinaBase, cicles.oficina, 12).toFixed(2) + " €";
+        document.getElementById('res-neteja-any').textContent = calcularTotal(netejaBase, cicles.neteja, 12).toFixed(2) + " €";
+        document.getElementById('res-altres-any').textContent = (calcularTotal(mantenimentBase, cicles.manten, 12) + calcularTotal(escombrariesBase, cicles.escomb, 12)).toFixed(2) + " €";
+
+        // Període
+        document.getElementById('res-elec-periode').textContent = calcularTotal(elecBase, cicles.elec, mesosPeriode).toFixed(2) + " kWh";
+        document.getElementById('res-aigua-periode').textContent = calcularTotal(aiguaBase, cicles.aigua, mesosPeriode).toFixed(2) + " L";
+        document.getElementById('res-oficina-periode').textContent = calcularTotal(oficinaBase, cicles.oficina, mesosPeriode).toFixed(2) + " €";
+        document.getElementById('res-neteja-periode').textContent = calcularTotal(netejaBase, cicles.neteja, mesosPeriode).toFixed(2) + " €";
+        document.getElementById('res-altres-periode').textContent = (calcularTotal(mantenimentBase, cicles.manten, mesosPeriode) + calcularTotal(escombrariesBase, cicles.escomb, mesosPeriode)).toFixed(2) + " €";
+
+        document.getElementById('results').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

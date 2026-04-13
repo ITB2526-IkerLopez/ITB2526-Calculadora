@@ -18,7 +18,6 @@ function calcularConsum(base, tipus, mesos) {
 // LLEGIR EL FITXER EXTERNAMENTE AMB FETCH
 async function carregarDadesJSON() {
     try {
-        // Cridem al fitxer que ha d'estar a la mateixa carpeta
         const response = await fetch('dataclean.json');
 
         if (!response.ok) {
@@ -26,16 +25,14 @@ async function carregarDadesJSON() {
         }
 
         const jsonITB = await response.json();
-
-        // Cridem a la funció per processar les dades un cop carregades
         processarDades(jsonITB);
 
     } catch (error) {
         console.error("No s'ha pogut llegir el fitxer dataclean.json.", error);
         document.getElementById('resultats-grid').innerHTML = `
-            <div class="targeta" style="border-color: red; background: #ffe6e6;">
+            <div class="targeta" style="border-color: red; background: rgba(255,0,0,0.1);">
                 <strong>❌ Error de càrrega</strong>
-                <p>No s'ha pogut llegir 'dataclean.json'. Recorda que has d'utilitzar un servidor local (ex: Live Server) per fer servir 'fetch()' o tenir-ho penjat a la web.</p>
+                <p style="color: #ffb3b3;">No s'ha pogut llegir 'dataclean.json'. Recorda que has d'utilitzar un servidor local (ex: Live Server).</p>
             </div>
         `;
     }
@@ -45,7 +42,7 @@ function processarDades(jsonITB) {
     // 1. Aigua
     const aiguaDies = jsonITB.dades.subministraments.aigua;
     const sumaAigua = aiguaDies.reduce((acc, curr) => acc + curr.consum_litres, 0);
-    const baseAiguaMensual = (sumaAigua / aiguaDies.length) * 30; // Mitjana diària x 30
+    const baseAiguaMensual = (sumaAigua / aiguaDies.length) * 30;
 
     // 2. Electricitat
     const elecDies = jsonITB.dades.subministraments.energia.registres_diaris;
@@ -58,7 +55,6 @@ function processarDades(jsonITB) {
         .filter(f => f.proveidor === "Lyreco")
         .reduce((acc, c) => acc + c.import_total_eur, 0);
     const ofiDesclasificat = jsonITB.dades.documents_classificats[0].import_total_eur;
-    // Es divideix per 5 perquè hi ha factures de 5 mesos diferents per fer la mitjana mensual
     const baseOfiMensual = (ofiPrincipal + ofiExtra + ofiDesclasificat) / 5;
 
     // 4. Neteja
@@ -84,27 +80,51 @@ function processarDades(jsonITB) {
         netCurs: calcularConsum(baseNetejaMensual, 'net', mesosCurs)
     };
 
-    // Imprimir els 8 indicadors a la graella
+    // Imprimir els 8 indicadors a la graella amb el disseny premium
     document.getElementById('resultats-grid').innerHTML = `
         <div class="targeta">
             <strong>⚡ Electricitat</strong>
-            <p>1. Pròxim any: ${resultats.elecAny.toFixed(2)} kWh</p>
-            <p>2. Curs (Set-Jun): ${resultats.elecCurs.toFixed(2)} kWh</p>
+            <p>
+                <span class="etiqueta-dada">Pròxim any</span>
+                <span class="valor-destacat">${resultats.elecAny.toFixed(0)} <span class="unitat">kWh</span></span>
+            </p>
+            <p>
+                <span class="etiqueta-dada">Curs (Set-Jun)</span>
+                <span class="valor-destacat">${resultats.elecCurs.toFixed(0)} <span class="unitat">kWh</span></span>
+            </p>
         </div>
         <div class="targeta">
             <strong>💧 Aigua</strong>
-            <p>3. Pròxim any: ${resultats.aiguaAny.toFixed(2)} L</p>
-            <p>4. Curs (Set-Jun): ${resultats.aiguaCurs.toFixed(2)} L</p>
+            <p>
+                <span class="etiqueta-dada">Pròxim any</span>
+                <span class="valor-destacat">${resultats.aiguaAny.toFixed(0)} <span class="unitat">L</span></span>
+            </p>
+            <p>
+                <span class="etiqueta-dada">Curs (Set-Jun)</span>
+                <span class="valor-destacat">${resultats.aiguaCurs.toFixed(0)} <span class="unitat">L</span></span>
+            </p>
         </div>
         <div class="targeta">
             <strong>📎 Oficina (Lyreco)</strong>
-            <p>5. Pròxim any: ${resultats.ofiAny.toFixed(2)} €</p>
-            <p>6. Curs (Set-Jun): ${resultats.ofiCurs.toFixed(2)} €</p>
+            <p>
+                <span class="etiqueta-dada">Pròxim any</span>
+                <span class="valor-destacat">${resultats.ofiAny.toFixed(2)} <span class="unitat">€</span></span>
+            </p>
+            <p>
+                <span class="etiqueta-dada">Curs (Set-Jun)</span>
+                <span class="valor-destacat">${resultats.ofiCurs.toFixed(2)} <span class="unitat">€</span></span>
+            </p>
         </div>
         <div class="targeta">
             <strong>🧼 Neteja</strong>
-            <p>7. Pròxim any: ${resultats.netAny.toFixed(2)} €</p>
-            <p>8. Curs (Set-Jun): ${resultats.netCurs.toFixed(2)} €</p>
+            <p>
+                <span class="etiqueta-dada">Pròxim any</span>
+                <span class="valor-destacat">${resultats.netAny.toFixed(2)} <span class="unitat">€</span></span>
+            </p>
+            <p>
+                <span class="etiqueta-dada">Curs (Set-Jun)</span>
+                <span class="valor-destacat">${resultats.netCurs.toFixed(2)} <span class="unitat">€</span></span>
+            </p>
         </div>
     `;
 
@@ -113,19 +133,31 @@ function processarDades(jsonITB) {
     document.getElementById('recalcul-grid').innerHTML = `
         <div class="targeta">
             <strong>⚡ Electricitat (-30%)</strong>
-            <p>Objectiu Any 3: ${(resultats.elecAny * reduccio).toFixed(2)} kWh</p>
+            <p>
+                <span class="etiqueta-dada">Objectiu Any 3</span>
+                <span class="valor-destacat">${(resultats.elecAny * reduccio).toFixed(0)} <span class="unitat">kWh</span></span>
+            </p>
         </div>
         <div class="targeta">
             <strong>💧 Aigua (-30%)</strong>
-            <p>Objectiu Any 3: ${(resultats.aiguaAny * reduccio).toFixed(2)} L</p>
+            <p>
+                <span class="etiqueta-dada">Objectiu Any 3</span>
+                <span class="valor-destacat">${(resultats.aiguaAny * reduccio).toFixed(0)} <span class="unitat">L</span></span>
+            </p>
         </div>
         <div class="targeta">
             <strong>📎 Oficina (-30%)</strong>
-            <p>Objectiu Any 3: ${(resultats.ofiAny * reduccio).toFixed(2)} €</p>
+            <p>
+                <span class="etiqueta-dada">Objectiu Any 3</span>
+                <span class="valor-destacat">${(resultats.ofiAny * reduccio).toFixed(2)} <span class="unitat">€</span></span>
+            </p>
         </div>
         <div class="targeta">
             <strong>🧼 Neteja (-30%)</strong>
-            <p>Objectiu Any 3: ${(resultats.netAny * reduccio).toFixed(2)} €</p>
+            <p>
+                <span class="etiqueta-dada">Objectiu Any 3</span>
+                <span class="valor-destacat">${(resultats.netAny * reduccio).toFixed(2)} <span class="unitat">€</span></span>
+            </p>
         </div>
     `;
 }

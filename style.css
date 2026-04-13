@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    margin: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+header {
+    background-color: #1d3557;
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+}
+main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+h2 {
+    color: #457b9d;
+    border-bottom: 2px solid #a8dadc;
+    padding-bottom: 0.5rem;
+}
+.panell-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    background-color: #f1faee;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #a8dadc;
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 200px;
+}
+.input-group label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+.input-group input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #e9ecef;
+    color: #555;
+    font-weight: bold;
+}
+.grid-resultats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 2rem;
+}
+.targeta {
+    background: #fdfcdc;
+    padding: 15px;
+    border-left: 5px solid #f2cc8f;
+    border-radius: 4px;
+}
+.targeta p { margin: 5px 0; font-size: 0.9rem; }
+.taula-accions {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+.taula-accions th, .taula-accions td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+.taula-accions th {
+    background-color: #a8dadc;
+    color: #1d3557;
+}
+.objectius-reduits .targeta {
+    background: #d8f3dc;
+    border-left-color: #2d6a4f;
+}

@@ -3,41 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora ITB Leaks - Dades Reals</title>
+    <title>Dashboard Sostenibilitat - Premium</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <h1>Anàlisi de Consums: ITB Leaks (Dades Reals JSON)</h1>
+        <h1>Anàlisi de Consums: ITB Leaks</h1>
     </header>
 
     <main>
         <section id="calculadora">
             <h2>1. Dades Base Extretes del JSON</h2>
-            <p>La calculadora ha processat el fitxer <code>dataclean.json</code> per obtenir les següents mitjanes mensuals reals:</p>
+            <p>La calculadora ha processat el fitxer de dades reals per establir els consums base:</p>
 
             <div class="panell-inputs">
                 <div class="input-group">
                     <label>Electricitat base (kWh/mes):</label>
-                    <input type="number" id="baseElec" readonly title="Mitjana calculada a partir dels 22 dies de gener 2025">
+                    <input type="number" id="baseElec" readonly>
                 </div>
                 <div class="input-group">
                     <label>Aigua base (L/mes):</label>
-                    <input type="number" id="baseAigua" readonly title="Mitjana calculada a partir de les lectures de febrer 2024">
+                    <input type="number" id="baseAigua" readonly>
                 </div>
                 <div class="input-group">
                     <label>Consumibles oficina (€/mes):</label>
-                    <input type="number" id="baseOfi" readonly title="Suma factures Lyreco i document desclassificat">
+                    <input type="number" id="baseOfi" readonly>
                 </div>
                 <div class="input-group">
                     <label>Neteja base (€/mes):</label>
-                    <input type="number" id="baseNet" readonly title="Suma factures Servei de Neteja">
+                    <input type="number" id="baseNet" readonly>
                 </div>
             </div>
 
             <h2>2. Projeccions (Estacionals i Tendències)</h2>
             <div id="resultats-grid" class="grid-resultats">
                 </div>
+
+            <div class="seccion-cronologia">
+                <h2>📈 Evolució del Gasto durant el Curs Escolar</h2>
+                <p>Observa els pics d'inici de curs, les baixades a l'hivern i el tancament de l'agost.</p>
+                <div class="grafic-container">
+                    <canvas id="graficEvolucio"></canvas>
+                </div>
+            </div>
         </section>
 
         <section id="reduccio">
@@ -51,22 +60,22 @@
                 </tr>
                 <tr>
                     <td><strong>Any 1 (-10%)</strong></td>
-                    <td>- Reducció consum elèctric (kWh)<br>- Reducció facturació de neteja</td>
-                    <td>- Substitució a LED (impacte real als 9548 kWh/mes actuals).<br>- Compra de neteja a granel en lloc d'envasos petits.</td>
+                    <td>- Reducció elèctrica i neteja</td>
+                    <td>- Substitució a LED. Compra a granel.</td>
                 </tr>
                 <tr>
                     <td><strong>Any 2 (-20%)</strong></td>
-                    <td>- Reducció facturació Lyreco/Oficina</td>
-                    <td>- Eliminar la compra massiva de paper Navigator.<br>- Digitalització total a l'aula (Paper 0).</td>
+                    <td>- Reducció facturació Lyreco</td>
+                    <td>- Digitalització a l'aula (Paper 0).</td>
                 </tr>
                 <tr>
                     <td><strong>Any 3 (-30%)</strong></td>
-                    <td>- Reducció global (Aigua, Electricitat)</td>
-                    <td>- Instal·lació d'airejadors en els punts d'aigua.<br>- Plaques solars basades en els pics de gener.</td>
+                    <td>- Reducció global</td>
+                    <td>- Airejadors d'aigua i plaques solars.</td>
                 </tr>
             </table>
 
-            <h3>Recàlcul Final: Escenari Post-Millores (-30%)</h3>
+            <h2>Recàlcul Final: Escenari Post-Millores (-30%)</h2>
             <div id="recalcul-grid" class="grid-resultats objectius-reduits">
                 </div>
         </section>

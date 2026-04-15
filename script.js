@@ -1,22 +1,17 @@
 // TENDÈNCIES ESTACIONALS I TEMPORALS (Índex: 0=Gen, ..., 11=Des)
-// TENDÈNCIES ESTACIONALS I TEMPORALS (Índex: 0=Gen, ..., 11=Des)
 // Ajustat per mostrar caigudes dràstiques en vacances (Desembre, Gener) i tancament estival (Juliol, Agost)
 const factors = {
-    // elec: Baixa a la meitat a l'hivern per dies festius, mínim històric a l'agost (0.1, només neveres/servidors)
     elec:  [0.5, 1.2, 1.0, 0.9, 0.9, 1.1, 0.3, 0.1, 1.3, 1.1, 1.1, 0.5],
-
-    // aigua: Consum zero a l'agost, caiguda forta a l'hivern i juliol
     aigua: [0.4, 0.9, 1.0, 1.0, 1.1, 1.3, 0.2, 0.0, 1.1, 1.0, 0.9, 0.4],
-
-    // ofi: Zero absolut a l'agost, gairebé zero per festes, i un pic enorme (1.8) al setembre per inici de curs
     ofi:   [0.2, 1.0, 1.1, 1.0, 1.0, 1.0, 0.1, 0.0, 1.8, 1.1, 1.0, 0.2],
-
-    // net: Servei sota mínims a l'agost i desembre/gener
     net:   [0.5, 1.0, 1.0, 1.0, 1.0, 1.1, 0.3, 0.1, 1.2, 1.0, 1.0, 0.5]
 };
 
 const mesosCurs = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
 const mesosAny = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+// TAXA D'IMPOSTOS (21% d'IVA per a compres i serveis)
+const IVA = 1.21;
 
 function calcularConsum(base, tipus, mesos) {
     let total = 0;
@@ -27,7 +22,7 @@ function calcularConsum(base, tipus, mesos) {
 // FETCH DE DATOS JSON
 async function carregarDadesJSON() {
     try {
-        const response = await fetch('dataclean.json');
+        const response = await fetch('json/dataclean.json');
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
 
         const jsonITB = await response.json();
@@ -45,7 +40,7 @@ async function carregarDadesJSON() {
 }
 
 function processarDades(jsonITB) {
-    // Càlcul de bases
+    // Càlcul de bases temporals
     const aiguaDies = jsonITB.dades.subministraments.aigua;
     const baseAiguaMensual = (aiguaDies.reduce((a, c) => a + c.consum_litres, 0) / aiguaDies.length) * 30;
 
@@ -60,22 +55,22 @@ function processarDades(jsonITB) {
     const netejaFactures = jsonITB.dades.compres_i_manteniment.serveis_neteja;
     const baseNetejaMensual = netejaFactures.reduce((a, c) => a + c.import_total_eur, 0) / netejaFactures.length;
 
-    // Pintar inputs HTML
+    // Pintar inputs HTML (Valors Base Nets)
     document.getElementById('baseElec').value = baseElecMensual.toFixed(2);
     document.getElementById('baseAigua').value = baseAiguaMensual.toFixed(2);
     document.getElementById('baseOfi').value = baseOfiMensual.toFixed(2);
     document.getElementById('baseNet').value = baseNetejaMensual.toFixed(2);
 
-    // Càlculs totals
+    // Càlculs totals (Aplicant el 21% d'IVA només a les dades econòmiques)
     const resultats = {
         elecAny: calcularConsum(baseElecMensual, 'elec', mesosAny),
         elecCurs: calcularConsum(baseElecMensual, 'elec', mesosCurs),
         aiguaAny: calcularConsum(baseAiguaMensual, 'aigua', mesosAny),
         aiguaCurs: calcularConsum(baseAiguaMensual, 'aigua', mesosCurs),
-        ofiAny: calcularConsum(baseOfiMensual, 'ofi', mesosAny),
-        ofiCurs: calcularConsum(baseOfiMensual, 'ofi', mesosCurs),
-        netAny: calcularConsum(baseNetejaMensual, 'net', mesosAny),
-        netCurs: calcularConsum(baseNetejaMensual, 'net', mesosCurs)
+        ofiAny: calcularConsum(baseOfiMensual, 'ofi', mesosAny) * IVA,
+        ofiCurs: calcularConsum(baseOfiMensual, 'ofi', mesosCurs) * IVA,
+        netAny: calcularConsum(baseNetejaMensual, 'net', mesosAny) * IVA,
+        netCurs: calcularConsum(baseNetejaMensual, 'net', mesosCurs) * IVA
     };
 
     // PINTAR DASHBOARD RESULTATS
@@ -92,18 +87,17 @@ function processarDades(jsonITB) {
         </div>
         <div class="targeta">
             <strong>📎 Oficina (Lyreco)</strong>
-            <p><span class="etiqueta-dada">Pròxim any</span><span class="valor-destacat">${resultats.ofiAny.toFixed(2)} <span class="unitat">€</span></span></p>
-            <p><span class="etiqueta-dada">Curs (Set-Jun)</span><span class="valor-destacat">${resultats.ofiCurs.toFixed(2)} <span class="unitat">€</span></span></p>
+            <p><span class="etiqueta-dada">Pròxim any (+21% IVA)</span><span class="valor-destacat">${resultats.ofiAny.toFixed(2)} <span class="unitat">€</span></span></p>
+            <p><span class="etiqueta-dada">Curs (Set-Jun) (+21% IVA)</span><span class="valor-destacat">${resultats.ofiCurs.toFixed(2)} <span class="unitat">€</span></span></p>
         </div>
         <div class="targeta">
             <strong>🧼 Neteja</strong>
-            <p><span class="etiqueta-dada">Pròxim any</span><span class="valor-destacat">${resultats.netAny.toFixed(2)} <span class="unitat">€</span></span></p>
-            <p><span class="etiqueta-dada">Curs (Set-Jun)</span><span class="valor-destacat">${resultats.netCurs.toFixed(2)} <span class="unitat">€</span></span></p>
+            <p><span class="etiqueta-dada">Pròxim any (+21% IVA)</span><span class="valor-destacat">${resultats.netAny.toFixed(2)} <span class="unitat">€</span></span></p>
+            <p><span class="etiqueta-dada">Curs (Set-Jun) (+21% IVA)</span><span class="valor-destacat">${resultats.netCurs.toFixed(2)} <span class="unitat">€</span></span></p>
         </div>
     `;
 
     // --- PINTAR EL GRÀFIC (CHART.JS) ---
-    // Ordenem els mesos perquè comenci al Setembre (Inici de Curs) i acabi a l'Agost
     const ordreCurs = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7];
     const etiquetesMesos = ['Setembre', 'Octubre', 'Novembre', 'Desembre', 'Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost'];
 
@@ -125,15 +119,15 @@ function processarDades(jsonITB) {
                 tension: 0.4, fill: true, yAxisID: 'y'
             },
             {
-                label: '📎 Oficina (€)',
-                data: ordreCurs.map(m => baseOfiMensual * factors.ofi[m]),
+                label: '📎 Oficina (€ amb IVA)',
+                data: ordreCurs.map(m => (baseOfiMensual * factors.ofi[m]) * IVA),
                 borderColor: '#a78bfa',
                 backgroundColor: 'rgba(167, 139, 250, 0.1)',
                 tension: 0.4, fill: true, yAxisID: 'y-euros'
             },
             {
-                label: '🧼 Neteja (€)',
-                data: ordreCurs.map(m => baseNetejaMensual * factors.net[m]),
+                label: '🧼 Neteja (€ amb IVA)',
+                data: ordreCurs.map(m => (baseNetejaMensual * factors.net[m]) * IVA),
                 borderColor: '#34d399',
                 backgroundColor: 'rgba(52, 211, 153, 0.1)',
                 tension: 0.4, fill: true, yAxisID: 'y-euros'
@@ -165,19 +159,16 @@ function processarDades(jsonITB) {
                 },
                 'y-euros': {
                     type: 'linear', display: true, position: 'right',
-                    grid: { drawOnChartArea: false }, // Evita que les línies es creuin
+                    grid: { drawOnChartArea: false },
                     ticks: { color: '#a1a1aa' },
-                    title: { display: true, text: 'Despesa Econòmica (€)', color: '#a1a1aa' }
+                    title: { display: true, text: 'Despesa Econòmica (€ amb IVA)', color: '#a1a1aa' }
                 }
             }
         }
     };
 
-    // Si ja hi ha un gràfic, el destrueix abans de pintar (per evitar errors si es recarrega la funció)
     let myChart = Chart.getChart("graficEvolucio");
     if (myChart) myChart.destroy();
-
-    // Dibuixa el gràfic al canvas
     new Chart(document.getElementById('graficEvolucio'), configuracioGrafic);
 
     // PINTAR RECÀLCUL OBJECTIUS (-30%)
@@ -193,11 +184,11 @@ function processarDades(jsonITB) {
         </div>
         <div class="targeta">
             <strong>📎 Oficina (-30%)</strong>
-            <p><span class="etiqueta-dada">Objectiu Any 3</span><span class="valor-destacat">${(resultats.ofiAny * reduccio).toFixed(2)} <span class="unitat">€</span></span></p>
+            <p><span class="etiqueta-dada">Objectiu Any 3 (+IVA)</span><span class="valor-destacat">${(resultats.ofiAny * reduccio).toFixed(2)} <span class="unitat">€</span></span></p>
         </div>
         <div class="targeta">
             <strong>🧼 Neteja (-30%)</strong>
-            <p><span class="etiqueta-dada">Objectiu Any 3</span><span class="valor-destacat">${(resultats.netAny * reduccio).toFixed(2)} <span class="unitat">€</span></span></p>
+            <p><span class="etiqueta-dada">Objectiu Any 3 (+IVA)</span><span class="valor-destacat">${(resultats.netAny * reduccio).toFixed(2)} <span class="unitat">€</span></span></p>
         </div>
     `;
 }

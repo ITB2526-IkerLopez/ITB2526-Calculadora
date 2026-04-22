@@ -14,8 +14,18 @@
 
     <main>
         <section id="calculadora">
-            <h2>1. Dades Base Extretes del JSON</h2>
-            <p>La calculadora ha processat el fitxer de dades reals per establir els consums base:</p>
+            <h2>1. Configuració de l'Anàlisi</h2>
+
+            <div class="selector-container">
+                <label for="selectorEscenari">Triar escenari de càlcul:</label>
+                <select id="selectorEscenari" onchange="actualitzarDashboard()">
+                    <option value="any">Any Complet (Estàndard)</option>
+                    <option value="curs">Curs Escolar (Setembre - Juny)</option>
+                    <option value="any1">Escenari Any 1 (-10% d'estalvi)</option>
+                    <option value="any2">Escenari Any 2 (-20% d'estalvi)</option>
+                    <option value="any3">Escenari Any 3 (-30% d'estalvi)</option>
+                </select>
+            </div>
 
             <div class="panell-inputs">
                 <div class="input-group">
@@ -27,7 +37,7 @@
                     <input type="number" id="baseAigua" readonly>
                 </div>
                 <div class="input-group">
-                    <label>Consumibles oficina (€/mes):</label>
+                    <label>Oficina base (€/mes):</label>
                     <input type="number" id="baseOfi" readonly>
                 </div>
                 <div class="input-group">
@@ -36,13 +46,12 @@
                 </div>
             </div>
 
-            <h2>2. Projeccions (Estacionals i Tendències)</h2>
+            <h2 id="titol-resultats">2. Projecció de Resultats</h2>
             <div id="resultats-grid" class="grid-resultats">
                 </div>
 
             <div class="seccion-cronologia">
-                <h2>📈 Evolució del Gasto durant el Curs Escolar</h2>
-                <p>Observa els pics d'inici de curs, les baixades a l'hivern i el tancament de l'agost.</p>
+                <h2 id="titol-grafic">📈 Evolució Mensual de l'Escenari</h2>
                 <div class="grafic-container">
                     <canvas id="graficEvolucio"></canvas>
                 </div>
@@ -50,34 +59,21 @@
         </section>
 
         <section id="reduccio">
-            <h2>3. Pla d'Acció: Reducció del 30% en 3 anys</h2>
-
+            <h2>3. Full de Ruta (Estratègia Circular)</h2>
             <table class="taula-accions">
-                <tr>
-                    <th>Cronograma</th>
-                    <th>Objectius i Indicadors</th>
-                    <th>Accions (Economia Circular)</th>
-                </tr>
-                <tr>
-                    <td><strong>Any 1 (-10%)</strong></td>
-                    <td>- Reducció elèctrica i neteja</td>
-                    <td>- Substitució a LED. Compra a granel.</td>
-                </tr>
-                <tr>
-                    <td><strong>Any 2 (-20%)</strong></td>
-                    <td>- Reducció facturació Lyreco</td>
-                    <td>- Digitalització a l'aula (Paper 0).</td>
-                </tr>
-                <tr>
-                    <td><strong>Any 3 (-30%)</strong></td>
-                    <td>- Reducció global</td>
-                    <td>- Airejadors d'aigua i plaques solars.</td>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>Fase</th>
+                        <th>Objectiu</th>
+                        <th>Accions Clau</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Any 1</strong></td><td>-10%</td><td>LEDs i compra a granel.</td></tr>
+                    <tr><td><strong>Any 2</strong></td><td>-20%</td><td>Digitalització total i Paper 0.</td></tr>
+                    <tr><td><strong>Any 3</strong></td><td>-30%</td><td>Plaques solars i airejadors.</td></tr>
+                </tbody>
             </table>
-
-            <h2>Recàlcul Final: Escenari Post-Millores (-30%)</h2>
-            <div id="recalcul-grid" class="grid-resultats objectius-reduits">
-                </div>
         </section>
     </main>
 

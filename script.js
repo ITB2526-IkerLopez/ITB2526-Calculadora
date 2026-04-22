@@ -1,5 +1,9 @@
-// TENDÈNCIES ESTACIONALS I TEMPORALS (Índex: 0=Gen, ..., 11=Des)
-// Ajustat per mostrar caigudes dràstiques en vacances (Desembre, Gener) i tancament estival (Juliol, Agost)
+let dadesGlobals = {};
+let elMeuGrafic = null;
+let maxEscalaUnits = 0;
+let maxEscalaEuros = 0;
+
+// TENDÈNCIES ESTACIONALS I TEMPORALS
 const factors = {
     elec:  [0.5, 1.2, 1.0, 0.9, 0.9, 1.1, 0.3, 0.1, 1.3, 1.1, 1.1, 0.5],
     aigua: [0.4, 0.9, 1.0, 1.0, 1.1, 1.3, 0.2, 0.0, 1.1, 1.0, 0.9, 0.4],
@@ -7,190 +11,145 @@ const factors = {
     net:   [0.5, 1.0, 1.0, 1.0, 1.0, 1.1, 0.3, 0.1, 1.2, 1.0, 1.0, 0.5]
 };
 
-const mesosCurs = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
-const mesosAny = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-
-// TAXA D'IMPOSTOS (21% d'IVA per a compres i serveis)
 const IVA = 1.21;
+const mesosAny = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; // Gen a Des
+const mesosCurs = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7]; // Set a Ago
 
-function calcularConsum(base, tipus, mesos) {
-    let total = 0;
-    mesos.forEach(mes => { total += base * factors[tipus][mes]; });
-    return total;
-}
-
-// FETCH DE DATOS JSON
 async function carregarDadesJSON() {
     try {
         const response = await fetch('json/dataclean.json');
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) throw new Error("No s'ha pogut carregar el fitxer JSON");
+        const json = await response.json();
 
-        const jsonITB = await response.json();
-        processarDades(jsonITB);
+        // --- Càlculs de Bases ---
+        const dadesAigua = json.dades?.subministraments?.aigua || [];
+        const baseAigua = dadesAigua.length > 0 ? (dadesAigua.reduce((a, c) => a + (c.consum_litres || 0), 0) / dadesAigua.length) * 30 : 0;
 
-    } catch (error) {
-        console.error("No s'ha pogut llegir el fitxer.", error);
-        document.getElementById('resultats-grid').innerHTML = `
-            <div class="targeta" style="border-color: red; background: rgba(255,0,0,0.1);">
-                <strong>❌ Error de càrrega</strong>
-                <p style="color: #ffb3b3;">Has d'obrir-ho amb Live Server perquè funcioni el fetch() de les dades.</p>
-            </div>
-        `;
-    }
+        const dadesElec = json.dades?.subministraments?.energia?.registres_diaris || [];
+        const baseElec = dadesElec.length > 0 ? (dadesElec.reduce((a, c) => a + (c.consumida_kwh || 0), 0) / dadesElec.length) * 30 : 0;
+
+        const matOfi = json.dades?.compres_i_manteniment?.material_oficina || [];
+        const lyreco = (json.dades?.compres_i_manteniment?.altres_factures_np || []).filter(f => f.proveidor === "Lyreco");
+        const classificats = json.dades?.documents_classificats?.[0]?.import_total_eur || 0;
+        const baseOfi = (matOfi.reduce((a, c) => a + (c.import_total_eur || 0), 0) + lyreco.reduce((a, c) => a + (c.import_total_eur || 0), 0) + classificats) / 5;
+
+        const dadesNet = json.dades?.compres_i_manteniment?.serveis_neteja || [];
+        const baseNet = dadesNet.length > 0 ? dadesNet.reduce((a, c) => a + (c.import_total_eur || 0), 0) / dadesNet.length : 0;
+
+        dadesGlobals = { baseElec, baseAigua, baseOfi, baseNet };
+
+        // --- CÀLCUL DE L'ESCALA MÀXIMA AMB ARRODONIMENT ---
+        let maxUnitsBrut = Math.max(
+            ...factors.elec.map(f => f * baseElec),
+            ...factors.aigua.map(f => f * baseAigua)
+        ) * 1.1;
+
+        let maxEurosBrut = Math.max(
+            ...factors.ofi.map(f => f * baseOfi * IVA),
+            ...factors.net.map(f => f * baseNet * IVA)
+        ) * 1.1;
+
+        // Arrodonim cap amunt a la centena més propera (ex: 3421 -> 3500)
+        maxEscalaUnits = Math.ceil(maxUnitsBrut / 100) * 100;
+        maxEscalaEuros = Math.ceil(maxEurosBrut / 100) * 100;
+
+        // Omplir inputs
+        document.getElementById('baseElec').value = baseElec.toFixed(0);
+        document.getElementById('baseAigua').value = baseAigua.toFixed(0);
+        document.getElementById('baseOfi').value = baseOfi.toFixed(0);
+        document.getElementById('baseNet').value = baseNet.toFixed(0);
+
+        actualitzarDashboard();
+
+    } catch (e) { console.error(e); }
 }
 
-function processarDades(jsonITB) {
-    // Càlcul de bases temporals
-    const aiguaDies = jsonITB.dades.subministraments.aigua;
-    const baseAiguaMensual = (aiguaDies.reduce((a, c) => a + c.consum_litres, 0) / aiguaDies.length) * 30;
+function actualitzarDashboard() {
+    if (!dadesGlobals.baseElec && dadesGlobals.baseElec !== 0) return;
 
-    const elecDies = jsonITB.dades.subministraments.energia.registres_diaris;
-    const baseElecMensual = (elecDies.reduce((a, c) => a + c.consumida_kwh, 0) / elecDies.length) * 30;
+    const escenari = document.getElementById('selectorEscenari').value;
+    let mult = 1.0;
+    let ordre = mesosAny;
+    let labels = ['Gen', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Des'];
+    let mesosCalcul = mesosAny;
+    let titol = "Any Complet (Estàndard)";
 
-    const ofiPrincipal = jsonITB.dades.compres_i_manteniment.material_oficina.reduce((a, c) => a + c.import_total_eur, 0);
-    const ofiExtra = jsonITB.dades.compres_i_manteniment.altres_factures_np.filter(f => f.proveidor === "Lyreco").reduce((a, c) => a + c.import_total_eur, 0);
-    const ofiDesclasificat = jsonITB.dades.documents_classificats[0].import_total_eur;
-    const baseOfiMensual = (ofiPrincipal + ofiExtra + ofiDesclasificat) / 5;
+    if (escenari === 'curs') {
+        ordre = mesosCurs;
+        mesosCalcul = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
+        labels = ['Set', 'Oct', 'Nov', 'Des', 'Gen', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'];
+        titol = "Curs Escolar (Setembre - Juny)";
+    } else {
+        if (escenari === 'any1') { mult = 0.9; titol = "Objectiu Any 1 (-10%)"; }
+        if (escenari === 'any2') { mult = 0.8; titol = "Objectiu Any 2 (-20%)"; }
+        if (escenari === 'any3') { mult = 0.7; titol = "Objectiu Any 3 (-30%)"; }
+    }
 
-    const netejaFactures = jsonITB.dades.compres_i_manteniment.serveis_neteja;
-    const baseNetejaMensual = netejaFactures.reduce((a, c) => a + c.import_total_eur, 0) / netejaFactures.length;
+    document.getElementById('titol-resultats').innerText = "2. " + titol;
 
-    // Pintar inputs HTML (Valors Base Nets)
-    document.getElementById('baseElec').value = baseElecMensual.toFixed(2);
-    document.getElementById('baseAigua').value = baseAiguaMensual.toFixed(2);
-    document.getElementById('baseOfi').value = baseOfiMensual.toFixed(2);
-    document.getElementById('baseNet').value = baseNetejaMensual.toFixed(2);
-
-    // Càlculs totals (Aplicant el 21% d'IVA només a les dades econòmiques)
-    const resultats = {
-        elecAny: calcularConsum(baseElecMensual, 'elec', mesosAny),
-        elecCurs: calcularConsum(baseElecMensual, 'elec', mesosCurs),
-        aiguaAny: calcularConsum(baseAiguaMensual, 'aigua', mesosAny),
-        aiguaCurs: calcularConsum(baseAiguaMensual, 'aigua', mesosCurs),
-        ofiAny: calcularConsum(baseOfiMensual, 'ofi', mesosAny) * IVA,
-        ofiCurs: calcularConsum(baseOfiMensual, 'ofi', mesosCurs) * IVA,
-        netAny: calcularConsum(baseNetejaMensual, 'net', mesosAny) * IVA,
-        netCurs: calcularConsum(baseNetejaMensual, 'net', mesosCurs) * IVA
+    const calc = (base, tipus) => {
+        let t = 0;
+        mesosCalcul.forEach(m => t += base * factors[tipus][m] * mult);
+        return t;
     };
 
-    // PINTAR DASHBOARD RESULTATS
     document.getElementById('resultats-grid').innerHTML = `
-        <div class="targeta">
-            <strong>⚡ Electricitat</strong>
-            <p><span class="etiqueta-dada">Pròxim any</span><span class="valor-destacat">${resultats.elecAny.toFixed(0)} <span class="unitat">kWh</span></span></p>
-            <p><span class="etiqueta-dada">Curs (Set-Jun)</span><span class="valor-destacat">${resultats.elecCurs.toFixed(0)} <span class="unitat">kWh</span></span></p>
-        </div>
-        <div class="targeta">
-            <strong>💧 Aigua</strong>
-            <p><span class="etiqueta-dada">Pròxim any</span><span class="valor-destacat">${resultats.aiguaAny.toFixed(0)} <span class="unitat">L</span></span></p>
-            <p><span class="etiqueta-dada">Curs (Set-Jun)</span><span class="valor-destacat">${resultats.aiguaCurs.toFixed(0)} <span class="unitat">L</span></span></p>
-        </div>
-        <div class="targeta">
-            <strong>📎 Oficina (Lyreco)</strong>
-            <p><span class="etiqueta-dada">Pròxim any (+21% IVA)</span><span class="valor-destacat">${resultats.ofiAny.toFixed(2)} <span class="unitat">€</span></span></p>
-            <p><span class="etiqueta-dada">Curs (Set-Jun) (+21% IVA)</span><span class="valor-destacat">${resultats.ofiCurs.toFixed(2)} <span class="unitat">€</span></span></p>
-        </div>
-        <div class="targeta">
-            <strong>🧼 Neteja</strong>
-            <p><span class="etiqueta-dada">Pròxim any (+21% IVA)</span><span class="valor-destacat">${resultats.netAny.toFixed(2)} <span class="unitat">€</span></span></p>
-            <p><span class="etiqueta-dada">Curs (Set-Jun) (+21% IVA)</span><span class="valor-destacat">${resultats.netCurs.toFixed(2)} <span class="unitat">€</span></span></p>
-        </div>
+        <div class="targeta"><strong>⚡ Electricitat</strong><div class="valor-destacat">${calc(dadesGlobals.baseElec, 'elec').toFixed(0)}<span class="unitat">kWh</span></div></div>
+        <div class="targeta"><strong>💧 Aigua</strong><div class="valor-destacat">${calc(dadesGlobals.baseAigua, 'aigua').toFixed(0)}<span class="unitat">L</span></div></div>
+        <div class="targeta"><strong>📎 Oficina (+IVA)</strong><div class="valor-destacat">${(calc(dadesGlobals.baseOfi, 'ofi') * IVA).toFixed(2)}<span class="unitat">€</span></div></div>
+        <div class="targeta"><strong>🧼 Neteja (+IVA)</strong><div class="valor-destacat">${(calc(dadesGlobals.baseNet, 'net') * IVA).toFixed(2)}<span class="unitat">€</span></div></div>
     `;
 
-    // --- PINTAR EL GRÀFIC (CHART.JS) ---
-    const ordreCurs = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7];
-    const etiquetesMesos = ['Setembre', 'Octubre', 'Novembre', 'Desembre', 'Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost'];
+    dibuixarGrafic(mult, ordre, labels);
+}
 
-    const dadesGrafic = {
-        labels: etiquetesMesos,
-        datasets: [
-            {
-                label: '⚡ Electricitat (kWh)',
-                data: ordreCurs.map(m => baseElecMensual * factors.elec[m]),
-                borderColor: '#facc15',
-                backgroundColor: 'rgba(250, 204, 21, 0.1)',
-                tension: 0.4, fill: true, yAxisID: 'y'
-            },
-            {
-                label: '💧 Aigua (L)',
-                data: ordreCurs.map(m => baseAiguaMensual * factors.aigua[m]),
-                borderColor: '#38bdf8',
-                backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                tension: 0.4, fill: true, yAxisID: 'y'
-            },
-            {
-                label: '📎 Oficina (€ amb IVA)',
-                data: ordreCurs.map(m => (baseOfiMensual * factors.ofi[m]) * IVA),
-                borderColor: '#a78bfa',
-                backgroundColor: 'rgba(167, 139, 250, 0.1)',
-                tension: 0.4, fill: true, yAxisID: 'y-euros'
-            },
-            {
-                label: '🧼 Neteja (€ amb IVA)',
-                data: ordreCurs.map(m => (baseNetejaMensual * factors.net[m]) * IVA),
-                borderColor: '#34d399',
-                backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                tension: 0.4, fill: true, yAxisID: 'y-euros'
-            }
-        ]
-    };
+function dibuixarGrafic(multiplicador, ordre, labels) {
+    const ctx = document.getElementById('graficEvolucio').getContext('2d');
 
-    const configuracioGrafic = {
+    const datasetTemplate = (label, color, base, tipus, isEuro) => ({
+        label: label,
+        data: ordre.map(m => base * factors[tipus][m] * multiplicador * (isEuro ? IVA : 1)),
+        borderColor: color, backgroundColor: color + '22',
+        tension: 0.4, fill: true, yAxisID: isEuro ? 'y1' : 'y'
+    });
+
+    if (elMeuGrafic) elMeuGrafic.destroy();
+
+    elMeuGrafic = new Chart(ctx, {
         type: 'line',
-        data: dadesGrafic,
+        data: {
+            labels: labels,
+            datasets: [
+                datasetTemplate('Llum (kWh)', '#facc15', dadesGlobals.baseElec, 'elec', false),
+                datasetTemplate('Aigua (L)', '#38bdf8', dadesGlobals.baseAigua, 'aigua', false),
+                datasetTemplate('Oficina (€)', '#a78bfa', dadesGlobals.baseOfi, 'ofi', true),
+                datasetTemplate('Neteja (€)', '#34d399', dadesGlobals.baseNet, 'net', true)
+            ]
+        },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { labels: { color: '#fafafa', font: { family: 'Plus Jakarta Sans', size: 14 } } },
-                tooltip: { backgroundColor: 'rgba(24, 24, 27, 0.9)', titleColor: '#fff', bodyColor: '#a1a1aa', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
-            },
             scales: {
-                x: {
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#a1a1aa', font: { family: 'Plus Jakarta Sans' } }
-                },
                 y: {
-                    type: 'linear', display: true, position: 'left',
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#a1a1aa' },
-                    title: { display: true, text: 'Consums Físics (kWh / L)', color: '#a1a1aa' }
+                    type: 'linear', position: 'left',
+                    min: 0,
+                    max: maxEscalaUnits,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#aaa' }
                 },
-                'y-euros': {
-                    type: 'linear', display: true, position: 'right',
-                    grid: { drawOnChartArea: false },
-                    ticks: { color: '#a1a1aa' },
-                    title: { display: true, text: 'Despesa Econòmica (€ amb IVA)', color: '#a1a1aa' }
+                y1: {
+                    type: 'linear', position: 'right',
+                    min: 0,
+                    max: maxEscalaEuros,
+                    grid: { display: false },
+                    ticks: { color: '#aaa' }
                 }
+            },
+            plugins: {
+                legend: { labels: { color: '#fafafa' } }
             }
         }
-    };
-
-    let myChart = Chart.getChart("graficEvolucio");
-    if (myChart) myChart.destroy();
-    new Chart(document.getElementById('graficEvolucio'), configuracioGrafic);
-
-    // PINTAR RECÀLCUL OBJECTIUS (-30%)
-    const reduccio = 0.70;
-    document.getElementById('recalcul-grid').innerHTML = `
-        <div class="targeta">
-            <strong>⚡ Electricitat (-30%)</strong>
-            <p><span class="etiqueta-dada">Objectiu Any 3</span><span class="valor-destacat">${(resultats.elecAny * reduccio).toFixed(0)} <span class="unitat">kWh</span></span></p>
-        </div>
-        <div class="targeta">
-            <strong>💧 Aigua (-30%)</strong>
-            <p><span class="etiqueta-dada">Objectiu Any 3</span><span class="valor-destacat">${(resultats.aiguaAny * reduccio).toFixed(0)} <span class="unitat">L</span></span></p>
-        </div>
-        <div class="targeta">
-            <strong>📎 Oficina (-30%)</strong>
-            <p><span class="etiqueta-dada">Objectiu Any 3 (+IVA)</span><span class="valor-destacat">${(resultats.ofiAny * reduccio).toFixed(2)} <span class="unitat">€</span></span></p>
-        </div>
-        <div class="targeta">
-            <strong>🧼 Neteja (-30%)</strong>
-            <p><span class="etiqueta-dada">Objectiu Any 3 (+IVA)</span><span class="valor-destacat">${(resultats.netAny * reduccio).toFixed(2)} <span class="unitat">€</span></span></p>
-        </div>
-    `;
+    });
 }
 
 window.onload = carregarDadesJSON;

@@ -108,7 +108,10 @@ function dibuixarGrafic(multiplicador, ordre, labels) {
 
     const datasetTemplate = (label, color, base, tipus, isEuro) => ({
         label: label,
-        data: ordre.map(m => base * factors[tipus][m] * multiplicador * (isEuro ? IVA : 1)),
+        data: ordre.map(m => {
+            const valor = base * factors[tipus][m] * multiplicador * (isEuro ? IVA : 1);
+            return parseFloat(valor.toFixed(1)); // Forzamos 1 decimal máximo en los datos
+        }),
         borderColor: color, backgroundColor: color + '22',
         tension: 0.4, fill: true, yAxisID: isEuro ? 'y1' : 'y'
     });
@@ -132,24 +135,39 @@ function dibuixarGrafic(multiplicador, ordre, labels) {
             scales: {
                 y: {
                     type: 'linear', position: 'left',
-                    min: 0,
-                    max: maxEscalaUnits,
+                    min: 0, max: maxEscalaUnits,
                     grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#aaa' }
+                    ticks: {
+                        color: '#aaa',
+                        callback: function(value) { return value.toFixed(1); } // Eje izquierdo con 1 decimal
+                    }
                 },
                 y1: {
                     type: 'linear', position: 'right',
-                    min: 0,
-                    max: maxEscalaEuros,
+                    min: 0, max: maxEscalaEuros,
                     grid: { display: false },
-                    ticks: { color: '#aaa' }
+                    ticks: {
+                        color: '#aaa',
+                        callback: function(value) { return value.toFixed(1); } // Eje derecho con 1 decimal
+                    }
                 }
             },
             plugins: {
-                legend: { labels: { color: '#fafafa' } }
+                legend: { labels: { color: '#fafafa' } },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toFixed(1); // Tooltip con 1 decimal
+                            }
+                            return label;
+                        }
+                    }
+                }
             }
         }
     });
 }
-
 window.onload = carregarDadesJSON;

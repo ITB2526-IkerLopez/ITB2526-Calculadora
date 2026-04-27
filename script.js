@@ -103,23 +103,17 @@ function actualitzarDashboard() {
     dibuixarGrafic(mult, ordre, labels);
 }
 
-// ... (resto del script.js anterior) ...
-
-// --- FUNCIÓ DIBUIXAR GRÀFIC ACTUALITZADA PER A MÒBIL ---
 function dibuixarGrafic(multiplicador, ordre, labels) {
     const ctx = document.getElementById('graficEvolucio').getContext('2d');
-    const isMobile = window.innerWidth < 768; // Detectamos si es móvil
 
     const datasetTemplate = (label, color, base, tipus, isEuro) => ({
         label: label,
         data: ordre.map(m => {
             const valor = base * factors[tipus][m] * multiplicador * (isEuro ? IVA : 1);
-            return parseFloat(valor.toFixed(1));
+            return parseFloat(valor.toFixed(1)); // Forzamos 1 decimal máximo en los datos
         }),
-        borderColor: color, backgroundColor: color + '15', // Un pelín más transparente el fondo
-        tension: 0.4, fill: true, yAxisID: isEuro ? 'y1' : 'y',
-        borderWidth: isMobile ? 2 : 3, // Línea más fina en móvil
-        pointRadius: isMobile ? 2 : 4,   // Puntos más pequeños
+        borderColor: color, backgroundColor: color + '22',
+        tension: 0.4, fill: true, yAxisID: isEuro ? 'y1' : 'y'
     });
 
     if (elMeuGrafic) elMeuGrafic.destroy();
@@ -138,79 +132,35 @@ function dibuixarGrafic(multiplicador, ordre, labels) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            // --- NUEVO: REDUCIMOS PADDING GLOBAL ---
-            layout: {
-                padding: {
-                    left: isMobile ? 5 : 10,
-                    right: isMobile ? 5 : 10,
-                    top: isMobile ? 5 : 10,
-                    bottom: isMobile ? 5 : 10
-                }
-            },
             scales: {
                 y: {
                     type: 'linear', position: 'left',
-                    min: 0,
-                    // ... (maxScale anterior) ...
-                    max: maxEscalaUnits,
-                    grid: { color: 'rgba(255,255,255,0.03)' }, // Cuadrícula más tenue
+                    min: 0, max: maxEscalaUnits,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
                     ticks: {
                         color: '#aaa',
-                        font: { size: isMobile ? 9 : 11 }, // Letra más pequeña
-                        // --- NUEVO: QUITAMOS DECIMALES EN EJE ---
-                        callback: function(value) { return isMobile ? Math.round(value) : value.toFixed(1); },
-                        maxTicksLimit: isMobile ? 6 : 10 // Menos líneas horizontales
-                    },
-                    title: { display: !isMobile, text: 'Units', color: '#888' } // Ocultamos título en móvil
+                        callback: function(value) { return value.toFixed(1); } // Eje izquierdo con 1 decimal
+                    }
                 },
                 y1: {
                     type: 'linear', position: 'right',
-                    min: 0,
-                    // ... (maxScaleEuros anterior) ...
-                    max: maxEscalaEuros,
+                    min: 0, max: maxEscalaEuros,
                     grid: { display: false },
                     ticks: {
                         color: '#aaa',
-                        font: { size: isMobile ? 9 : 11 }, // Letra más pequeña
-                        // --- NUEVO: QUITAMOS DECIMALES EN EJE Y MENOS TICKS ---
-                        callback: function(value) { return isMobile ? Math.round(value) : value.toFixed(1); },
-                        maxTicksLimit: isMobile ? 6 : 10
-                    },
-                    title: { display: !isMobile, text: 'Euros (€)', color: '#888' } // Ocultamos título en móvil
-                },
-                x: {
-                    ticks: {
-                        color: '#fafafa',
-                        font: { size: isMobile ? 10 : 12 },
-                        maxRotation: isMobile ? 45 : 0, // Rotación suave para los meses
-                        minRotation: isMobile ? 45 : 0,
-                        autoSkip: isMobile, // Saltarse meses si no caben
-                        maxTicksLimit: isMobile ? 12 : 12 // Asegurar que salgan todos o saltos limpios
-                    },
-                    grid: { color: 'rgba(255,255,255,0.03)' }
+                        callback: function(value) { return value.toFixed(1); } // Eje derecho con 1 decimal
+                    }
                 }
             },
             plugins: {
-                // --- NUEVO: LEYENDA A LA DERECHA Y PEQUEÑA ---
-                legend: {
-                    display: true,
-                    position: isMobile ? 'right' : 'top', // ¡CRUCIAL! A la derecha en móvil
-                    align: isMobile ? 'center' : 'end',
-                    labels: {
-                        color: '#fafafa',
-                        font: { size: isMobile ? 10 : 12 },
-                        boxWidth: isMobile ? 10 : 40, // Cajas de color más estrechas
-                        padding: isMobile ? 8 : 20   // Menos espacio entre ítems
-                    }
-                },
+                legend: { labels: { color: '#fafafa' } },
                 tooltip: {
-                    // Mantén tu configuración de tooltip de 1 decimal anterior aquí
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
                             if (label) label += ': ';
                             if (context.parsed.y !== null) {
-                                label += context.parsed.y.toFixed(1);
+                                label += context.parsed.y.toFixed(1); // Tooltip con 1 decimal
                             }
                             return label;
                         }
@@ -220,8 +170,6 @@ function dibuixarGrafic(multiplicador, ordre, labels) {
         }
     });
 }
-
-// ... (resto del script.js anterior) ...
 // Afegeix això al final del teu script.js
 window.addEventListener('load', () => {
     const taulaBody = document.getElementById('taula-comparativa-body');

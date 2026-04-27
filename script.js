@@ -170,4 +170,33 @@ function dibuixarGrafic(multiplicador, ordre, labels) {
         }
     });
 }
+// Afegeix això al final del teu script.js
+window.addEventListener('load', () => {
+    const taulaBody = document.getElementById('taula-comparativa-body');
+    if (taulaBody) {
+        // Aquesta part només s'executa si estem a la pàgina impacte.html
+        setTimeout(() => {
+            const fmt = (n) => n.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            const m = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+            const calcAny = (base, tipus) => m.reduce((acc, mes) => acc + (base * factors[tipus][mes]), 0);
+
+            const files = [
+                { nom: "Electricitat", base: dadesGlobals.baseElec, tipus: 'elec', unit: "kWh" },
+                { nom: "Aigua", base: dadesGlobals.baseAigua, tipus: 'aigua', unit: "L" },
+                { nom: "Oficina (+IVA)", base: dadesGlobals.baseOfi, tipus: 'ofi', unit: "€", extra: 1.21 },
+                { nom: "Neteja (+IVA)", base: dadesGlobals.baseNet, tipus: 'net', unit: "€", extra: 1.21 }
+            ];
+
+            taulaBody.innerHTML = files.map(f => {
+                const total = calcAny(f.base, f.tipus) * (f.extra || 1);
+                return `<tr>
+                    <td>${f.nom}</td>
+                    <td>${fmt(total)} ${f.unit}</td>
+                    <td style="color: #10b981">${fmt(total * 0.7)} ${f.unit}</td>
+                    <td>-${fmt(total * 0.3)} ${f.unit}</td>
+                </tr>`;
+            }).join('');
+        }, 500); // Esperem una mica a que carreguin les dades del JSON
+    }
+});
 window.onload = carregarDadesJSON;

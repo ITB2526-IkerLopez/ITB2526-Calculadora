@@ -66,3 +66,286 @@ select:focus { border-color: var(--accent); }
 
 .taula-accions { width: 100%; border-collapse: collapse; margin-top: 2rem; }
 .taula-accions td, .taula-accions th { padding: 15px; border-bottom: 1px solid var(--border); text-align: left; }
+
+/* NAVEGACIÓ */
+.navegacio {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+.btn-nav {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background: #1c1c21;
+    color: #aaa;
+    font-weight: 600;
+    transition: 0.3s;
+}
+.btn-nav.active {
+    background: #10b981;
+    color: #000;
+}
+
+/* --- ESTILS ESPECÍFICS PÀGINA D'IMPACTE (TEXTES GRANS) --- */
+
+.hero-impacte {
+    padding: 80px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.hero-impacte h2 {
+    font-size: 4rem; /* Mida extra gran */
+    line-height: 1.1;
+    margin-bottom: 25px;
+    background: linear-gradient(to right, #ffffff, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.hero-impacte p {
+    font-size: 1.6rem; /* Subtítol molt llegible */
+    color: #a1a1aa;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.grid-detall-estalvi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+    margin: 60px 0;
+    padding: 0 40px;
+}
+
+.card-detall {
+    background: #111114;
+    padding: 50px 40px;
+    border-radius: 32px;
+    border: 1px solid #27272a;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-detall:hover {
+    border-color: #10b981;
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.1);
+}
+
+.card-detall h3 {
+    font-size: 2.2rem;
+    margin-bottom: 25px;
+    color: #fff;
+}
+
+.card-detall ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 40px;
+}
+
+.card-detall li {
+    font-size: 1.25rem; /* Lletra de la llista gran */
+    margin-bottom: 15px;
+    color: #d4d4d8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-detall li::before {
+    content: "✓";
+    color: #10b981;
+    font-weight: 900;
+}
+
+.pct-estalvi {
+    font-size: 1.8rem;
+    background: #064e3b;
+    color: #34d399;
+    padding: 15px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* TAULA D'IMPACTE GEGANT */
+.informe-tecnic {
+    background: #111114;
+    margin: 80px 40px;
+    padding: 60px;
+    border-radius: 40px;
+    border: 1px solid #27272a;
+}
+
+.informe-tecnic h3 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.taula-impacte {
+    width: 100%;
+    font-size: 1.4rem; /* Taula molt gran */
+    border-collapse: collapse;
+}
+
+.taula-impacte th {
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: #10b981;
+    padding: 25px;
+    border-bottom: 2px solid #27272a;
+    text-align: left;
+}
+
+.taula-impacte td {
+    padding: 30px 25px;
+    border-bottom: 1px solid #27272a;
+}
+
+.badge {
+    background: #10b981;
+    color: #000;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+/* Layout Principal */
+.dashboard-impacte {
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 40px;
+    gap: 20px;
+    overflow: hidden;
+}
+
+.seccio-superior {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* El contenedor de las 3 cajas en una fila */
+.contenedor-cards-tres {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
+    gap: 20px;
+}
+
+.card-impacte {
+    background: #111114;
+    padding: 25px;
+    border-radius: 24px;
+    border: 1px solid #27272a;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-impacte h3 { font-size: 1.6rem; margin-bottom: 15px; }
+.card-impacte ul { padding-left: 20px; margin-bottom: 20px; }
+.card-impacte li { font-size: 0.95rem; color: #a1a1aa; margin-bottom: 8px; }
+
+.btn-estalvi {
+    background: #064e3b;
+    color: #34d399;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+/* Taula inferior más compacta */
+.informe-compacte {
+    background: #111114;
+    padding: 20px 30px;
+    border-radius: 24px;
+    border: 1px solid #27272a;
+}
+
+.taula-impacte td { padding: 12px 20px; }
+
+/* --- RESPONSIVE DESIGN --- */
+
+/* 1. Ajustes base para asegurar que nada se rompa */
+.contenedor-cards-tres {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Por defecto 3 columnas */
+    gap: 20px;
+    width: 100%;
+}
+
+.taula-comparativa-contenidor {
+    width: 100%;
+    overflow-x: auto; /* Permite scroll lateral en tablas si el móvil es muy pequeño */
+}
+
+/* 2. Pantallas medianas (Tablets - menos de 1024px) */
+@media (max-width: 1024px) {
+    .dashboard-impacte {
+        height: auto; /* Permitimos scroll solo si la pantalla es pequeña */
+        overflow-y: auto;
+    }
+
+    .contenedor-cards-tres {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas arriba, 1 abajo */
+    }
+
+    .hero-mini h2 {
+        font-size: 2.5rem;
+    }
+}
+
+/* 3. Pantallas pequeñas (Móviles - menos de 768px) */
+@media (max-width: 768px) {
+    .no-scroll {
+        overflow-y: auto; /* En móvil SIEMPRE hay scroll vertical */
+        height: auto;
+    }
+
+    .mini-header {
+        flex-direction: column; /* Título arriba, botones abajo */
+        height: auto;
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .dashboard-impacte {
+        grid-template-columns: 1fr; /* Forçar una sola columna en mòbil */
+        padding: 15px;
+    }
+
+    .contenedor-cards-tres {
+        grid-template-columns: 1fr; /* Las 3 cajas una debajo de otra */
+    }
+
+    .hero-mini {
+        text-align: center;
+    }
+
+    .hero-mini h2 {
+        font-size: 2rem;
+    }
+
+    .informe-compacte {
+        padding: 15px;
+    }
+
+    .taula-impacte {
+        font-size: 0.9rem; /* Letra un poco más pequeña en móvil */
+    }
+
+    .card-impacte {
+        padding: 20px;
+    }
+}

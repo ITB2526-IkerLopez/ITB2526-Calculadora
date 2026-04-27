@@ -349,3 +349,97 @@ select:focus { border-color: var(--accent); }
         padding: 20px;
     }
 }
+
+/* ============================================================
+   SOLUCIÓ DEFINITIVA RESPONSIVE (MOBILE VERTICAL)
+   ============================================================ */
+
+@media (max-width: 600px) {
+    /* 1. Ajustes Generales */
+    body, .no-scroll {
+        overflow-y: auto !important; /* FORZAMOS SCROLL EN MÓVIL */
+        height: auto !important;
+        font-size: 14px;
+    }
+
+    main, .dashboard-impacte {
+        display: block !important; /* Rompemos el Grid de dos columnas */
+        padding: 15px !important;
+        height: auto !important;
+    }
+
+    header {
+        padding: 10px !important;
+        text-align: center;
+    }
+
+    h1 { font-size: 1.5rem !important; }
+
+    /* 2. INDEX.HTML (Calculadora) */
+    .panell-inputs {
+        grid-template-columns: 1fr !important; /* Inputs uno debajo de otro */
+        gap: 10px !important;
+    }
+
+    .grid-resultats {
+        grid-template-columns: 1fr !important; /* Tarjetas de resultados una debajo de otra */
+    }
+
+    .valor-destacat {
+        font-size: 2rem !important; /* Bajamos el tamaño para que no se corte */
+    }
+
+    .grafic-container {
+        height: 300px !important; /* Altura fija para que el gráfico no se aplaste */
+    }
+
+    /* 3. IMPACTE.HTML (Pla 30%) */
+    .hero-mini h2, .hero-impacte h2 {
+        font-size: 2rem !important;
+        text-align: center;
+    }
+
+    .contenedor-cards-tres {
+        display: flex !important;
+        flex-direction: column !important; /* LAS 3 CAJAS EN VERTICAL */
+        gap: 15px !important;
+    }
+
+    .card-impacte, .card-detall {
+        width: 100% !important;
+        padding: 20px !important;
+    }
+
+    .card-impacte h3 {
+        font-size: 1.4rem !important;
+    }
+
+    /* 4. LA TABLA (El gran problema) */
+    .taula-comparativa-contenidor, .informe-compacte {
+        width: 100% !important;
+        overflow-x: auto !important; /* Scroll lateral para la tabla */
+        padding: 10px !important;
+        margin: 20px 0 !important;
+    }
+
+    .taula-impacte {
+        min-width: 500px; /* Forzamos ancho mínimo para que no se amontone el texto */
+        font-size: 0.85rem !important;
+    }
+
+    .taula-impacte td, .taula-impacte th {
+        padding: 8px !important;
+    }
+
+    /* 5. NAVEGACIÓN */
+    .navegacio, .navegacio-compacta {
+        flex-wrap: wrap; /* Si no caben los botones, que bajen */
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-nav {
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+    }
+}

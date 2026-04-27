@@ -443,14 +443,3 @@ select:focus { border-color: var(--accent); }
         font-size: 0.9rem !important;
     }
 }
-
-/* ... (en tus media queries para móvil max-width: 600px u 800px) ... */
-@media (max-width: 768px) {
-    /* ... (resto de estilos de móvil) ... */
-
-    .grafic-container {
-        /* Aumentamos la altura mínima para que la gráfica respire */
-        height: 450px !important;
-        padding: 10px !important; /* Reducimos padding interno del contenedor */
-    }
-}
